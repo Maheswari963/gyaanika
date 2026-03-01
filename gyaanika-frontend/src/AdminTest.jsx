@@ -6,7 +6,7 @@ export default function AdminTest() {
   const [msg, setMsg] = useState("");
 
   const login = async () => {
-    const res = await fetch("http://localhost:8000/api/admin/login", {
+    const res = await fetch("/api/admin/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

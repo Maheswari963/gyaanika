@@ -15,7 +15,7 @@ export default function AdminPanel() {
   const loadTickets = async () => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/admin/reviews", {
+      const res = await fetch("/api/admin/reviews", {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const payload = await res.json();
@@ -48,7 +48,7 @@ export default function AdminPanel() {
     }
 
     try {
-      const res = await fetch('http://localhost:8000/api/admin/fix-issue', {
+      const res = await fetch('/api/admin/fix-issue', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

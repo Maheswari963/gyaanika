@@ -166,7 +166,7 @@ export default function SearchFilters() { // Refactored to clean export
     setShowResults(false);
 
     try {
-      const res = await fetch('http://localhost:8000/api/search-colleges', {
+      const res = await fetch('/api/search-colleges', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...filters, dreamPath: jobInput })
@@ -187,7 +187,7 @@ export default function SearchFilters() { // Refactored to clean export
   const handleCollegeSelect = async (college) => {
     // Fetch full details including Deep AI Analysis
     try {
-      const res = await fetch(`http://localhost:8000/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
+      const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
       const data = await res.json();
       setSelectedCollege(data);
       setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
