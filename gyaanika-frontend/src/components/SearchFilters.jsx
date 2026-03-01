@@ -144,12 +144,10 @@ export default function SearchFilters() { // Refactored to clean export
   useEffect(() => {
     const boot = async () => {
       try {
-        const res = await fetch('/api/context');
+        const res = await fetch('/api/filters');
         const payload = await res.json();
 
-        if (payload.status === "success") {
-          setInitData(payload.data);
-        }
+       setInitData({ filters: payload });
       } catch (err) {
         console.error("Boot failed", err);
       } finally {
@@ -362,9 +360,9 @@ export default function SearchFilters() { // Refactored to clean export
                         <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest">
                           {c.facts?.accreditation || "Accredited"}
                         </span>
-                        <span className="font-black text-3xl text-blue-600">
-                          {c.ranking?.suitability}%
-                        </span>
+                       <span className="font-black text-3xl text-blue-600">
+  {c.matchScore}%
+</span>
                       </div>
 
                       <h3 className="text-2xl font-black text-slate-900 mb-2 leading-tight group-hover:text-blue-700 transition-colors">
@@ -378,7 +376,9 @@ export default function SearchFilters() { // Refactored to clean export
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white/40 rounded-xl p-3">
                           <p className="text-[10px] uppercase font-bold text-slate-400">Avg Package</p>
-                          <p className="text-lg font-black text-slate-800">{c.ranking?.avgPackage}</p>
+                          <p className="text-lg font-black text-slate-800">
+  {c.avgPackage}
+</p>
                         </div>
                         <div className="bg-white/40 rounded-xl p-3">
                           <p className="text-[10px] uppercase font-bold text-slate-400">Placement</p>
@@ -465,7 +465,7 @@ export default function SearchFilters() { // Refactored to clean export
                     </thead>
                     <tbody>
                       {[
-                        { l: "AI Match Score", k: "suitability", path: "ranking" },
+                     { l: "AI Match Score", k: "matchScore", path: "root" },
                         { l: "NIRF Ranking", k: "nirfRank", path: "facts" },
                         { l: "Avg Package", k: "avgPackage", path: "ranking" },
                         { l: "Highest Package", k: "highestPackage", path: "facts" },
@@ -477,7 +477,17 @@ export default function SearchFilters() { // Refactored to clean export
                           {compareList.map(c => (
                             <td key={c._id} className="p-6">
                               <span className={`text-lg font-black ${m.l.includes("Match") ? "text-emerald-600" : "text-slate-800"}`}>
-                                {m.path === "ranking" ? c.ranking?.[m.k] : c.facts?.[m.k]}
+                          <span className={`text-lg font-black ${m.l.includes("Match") ? "text-emerald-600" : "text-slate-800"}`}>
+  {
+    m.path === "ranking"
+      ? c.ranking?.[m.k]
+      : m.path === "facts"
+      ? c.facts?.[m.k]
+      : c[m.k]
+  }
+  {m.l.includes("Match") && "%"}
+</span>
+  : c[m.k]
                                 {m.l.includes("Match") && "%"}
                               </span>
                             </td>

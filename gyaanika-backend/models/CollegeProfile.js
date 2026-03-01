@@ -23,11 +23,17 @@ const collegeProfileSchema = new mongoose.Schema({
     nirfRank: String
   },
 
+  deepAnalysis: {
+    match: String,
+    career: String,
+    roi: String
+  },
+
+  analysis: String,
+
   career: [{ role: String, sector: String }],
   infrastructure: [{ name: String, detail: String }],
   voices: [{ user: String, batch: String, rating: Number, text: String }],
-
-  analysis: String,
 
   generated: Boolean,
   lastUpdated: Date
@@ -35,4 +41,3 @@ const collegeProfileSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model("CollegeProfile", collegeProfileSchema);
-
