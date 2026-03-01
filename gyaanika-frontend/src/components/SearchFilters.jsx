@@ -144,7 +144,7 @@ export default function SearchFilters() { // Refactored to clean export
   useEffect(() => {
     const boot = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/context');
+        const res = await fetch('/api/context');
         const payload = await res.json();
 
         if (payload.status === "success") {
