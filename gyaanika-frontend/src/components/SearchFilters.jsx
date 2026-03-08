@@ -141,6 +141,37 @@ const [quote, setQuote] = useState("");
   const resultsRef = useRef(null);
   const detailsRef = useRef(null);
 
+
+// ===== ADD THIS FUNCTION HERE =====
+const handleSearch = async () => {
+  setLoading(true);
+
+  try {
+    const query = new URLSearchParams({
+      district: filters.district,
+      program: filters.program,
+      degree: filters.degree,
+      branch: filters.branch,
+      dream: jobInput
+    });
+
+    const res = await fetch(`/api/search?${query.toString()}`);
+    const data = await res.json();
+
+    setColleges(data);
+    setShowResults(true);
+
+    setTimeout(() => {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 300);
+
+  } catch (err) {
+    console.error("Search failed", err);
+  } finally {
+    setLoading(false);
+  }
+};
+// ===== END FUNCTION =====
   // 1. THE SINGLE API CALL
   useEffect(() => {
     const boot = async () => {
@@ -469,8 +500,11 @@ const handleCollegeSelect = async (college) => {
                           <td className="p-6 text-slate-500 font-bold text-sm">{m.l}</td>
                           {compareList.map(c => (
                             <td key={c._id} className="p-6">
-                              <span className={`text-lg font-black ${m.l.includes("Match") ? "text-emerald-600" : "text-slate-800"}`}>
-                          <span className={`text-lg font-black ${m.l.includes("Match") ? "text-emerald-600" : "text-slate-800"}`}>
+                  <span
+  className={`text-lg font-black ${
+    m.l.includes("Match") ? "text-emerald-600" : "text-slate-800"
+  }`}
+>
   {
     m.path === "ranking"
       ? c.ranking?.[m.k]
@@ -478,9 +512,7 @@ const handleCollegeSelect = async (college) => {
       ? c.facts?.[m.k]
       : c[m.k]
   }
-  {m.l.includes("Match") && "%"}
-</span>
-  : c[m.k]
+ 
                                 {m.l.includes("Match") && "%"}
                               </span>
                             </td>
