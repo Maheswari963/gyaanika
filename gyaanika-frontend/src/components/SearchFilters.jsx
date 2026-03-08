@@ -158,44 +158,14 @@ const [quote, setQuote] = useState("");
     boot();
   }, []);
 
-  // Search Logic
-const handleCollegeSelect = async (college) => {
-
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-
-  setQuote(randomQuote);
-  setDetailsLoading(true);
-
-  try {
-
-    const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
-    const data = await res.json();
-
-    // keep loader visible for a moment
-    setTimeout(() => {
-
-      setSelectedCollege(data);   // open modal
-      setDetailsLoading(false);   // hide loader
-
-      setTimeout(() => {
-        detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-
-    }, 700);
-
-  } catch (e) {
-    console.error("Details fetch failed", e);
-    setDetailsLoading(false);
-  }
-};
-
-const quotes = [
+ const quotes = [
   "Education is the passport to the future.",
   "Learning never exhausts the mind.",
   "Education is the most powerful weapon to change the world.",
   "The beautiful thing about learning is nobody can take it away from you.",
   "Knowledge builds the future."
 ];
+
 const handleCollegeSelect = async (college) => {
 
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -207,39 +177,15 @@ const handleCollegeSelect = async (college) => {
     const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
     const data = await res.json();
 
-    // show loader first
     setTimeout(() => {
-      setDetailsLoading(false);
       setSelectedCollege(data);
-    }, 800);
+      setDetailsLoading(false);
+    }, 700);
 
   } catch (e) {
     console.error("Details fetch failed", e);
     setDetailsLoading(false);
   }
-};
-  // allow React to render the loader first
-  await new Promise(resolve => setTimeout(resolve, 100));
-
-  try {
-
-    const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
-    const data = await res.json();
-
-    setSelectedCollege(data);
-
-    setTimeout(() => {
-      detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-
-  } catch (e) {
-    console.error("Details fetch failed", e);
-  }
-
-  // keep loader visible a little longer
-  setTimeout(() => {
-    setDetailsLoading(false);
-  }, 400);
 };
   const toggleCompare = (e, college) => {
     e.stopPropagation();
