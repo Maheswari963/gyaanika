@@ -131,7 +131,8 @@ export default function SearchFilters() { // Refactored to clean export
   const [booting, setBooting] = useState(true);
   const [selectedCollege, setSelectedCollege] = useState(null);
   const [showResults, setShowResults] = useState(false);
-
+const [detailsLoading, setDetailsLoading] = useState(false);
+const [quote, setQuote] = useState("");
   // Comparison State
   const [compareList, setCompareList] = useState([]);
   const [showCompareModal, setShowCompareModal] = useState(false);
@@ -158,42 +159,88 @@ export default function SearchFilters() { // Refactored to clean export
   }, []);
 
   // Search Logic
-  const handleSearch = async () => {
-    if (!jobInput) return;
-    setLoading(true);
-    setShowResults(false);
+const handleCollegeSelect = async (college) => {
 
-    try {
-      const res = await fetch('/api/search-colleges', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...filters, dreamPath: jobInput })
-      });
-      const data = await res.json();
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
 
-      if (data.type === 'valid') {
-        setColleges(data.colleges || []);
-        setShowResults(true);
-        setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    setLoading(false);
-  };
+  setQuote(randomQuote);
+  setDetailsLoading(true);
 
-  const handleCollegeSelect = async (college) => {
-    // Fetch full details including Deep AI Analysis
-    try {
-      const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
-      const data = await res.json();
+  try {
+
+    const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
+    const data = await res.json();
+
+    // keep loader visible for a moment
+    setTimeout(() => {
+
+      setSelectedCollege(data);   // open modal
+      setDetailsLoading(false);   // hide loader
+
+      setTimeout(() => {
+        detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+
+    }, 700);
+
+  } catch (e) {
+    console.error("Details fetch failed", e);
+    setDetailsLoading(false);
+  }
+};
+
+const quotes = [
+  "Education is the passport to the future.",
+  "Learning never exhausts the mind.",
+  "Education is the most powerful weapon to change the world.",
+  "The beautiful thing about learning is nobody can take it away from you.",
+  "Knowledge builds the future."
+];
+const handleCollegeSelect = async (college) => {
+
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+  setQuote(randomQuote);
+  setDetailsLoading(true);
+
+  try {
+    const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
+    const data = await res.json();
+
+    // show loader first
+    setTimeout(() => {
+      setDetailsLoading(false);
       setSelectedCollege(data);
-      setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
-    } catch (e) {
-      console.error("Details fetch failed", e);
-    }
-  };
+    }, 800);
 
+  } catch (e) {
+    console.error("Details fetch failed", e);
+    setDetailsLoading(false);
+  }
+};
+  // allow React to render the loader first
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  try {
+
+    const res = await fetch(`/api/college-details/${college._id}?dream=${encodeURIComponent(jobInput)}`);
+    const data = await res.json();
+
+    setSelectedCollege(data);
+
+    setTimeout(() => {
+      detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+
+  } catch (e) {
+    console.error("Details fetch failed", e);
+  }
+
+  // keep loader visible a little longer
+  setTimeout(() => {
+    setDetailsLoading(false);
+  }, 400);
+};
   const toggleCompare = (e, college) => {
     e.stopPropagation();
     setCompareList(prev => {
@@ -512,7 +559,26 @@ export default function SearchFilters() { // Refactored to clean export
             </motion.div>
           )}
         </AnimatePresence>
+{/* DETAILS LOADING OVERLAY */}
+{detailsLoading && (
+  <div className="fixed inset-0 z-[400] bg-slate-900/90 flex flex-col items-center justify-center text-center px-6">
 
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 1 }}
+      className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full mb-8"
+    />
+
+    <p className="text-white text-lg font-light max-w-xl leading-relaxed">
+      {quote}
+    </p>
+
+    <p className="text-blue-400 text-sm mt-3 uppercase tracking-widest">
+      — Gyaanika Wisdom
+    </p>
+
+  </div>
+)}
         {/* DETAILS MODAL OVERLAY - "DEEP CARD" */}
         <AnimatePresence>
           {selectedCollege && (

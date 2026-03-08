@@ -12,6 +12,7 @@ function safeJSON(text) {
 
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
+
   if (start === -1 || end === -1) return null;
 
   try {
@@ -69,10 +70,14 @@ Return STRICT JSON:
 // ================= DETAILS ROUTE =================
 router.get("/:id", async (req, res) => {
   try {
+
     const dream = req.query.dream || "technology career";
 
     const college = await College.findById(req.params.id);
-    if (!college) return res.status(404).json({ error: "Not found" });
+
+    if (!college) {
+      return res.status(404).json({ error: "Not found" });
+    }
 
     let profile = await CollegeProfile.findOne({
       collegeId: college._id
@@ -80,10 +85,13 @@ router.get("/:id", async (req, res) => {
 
     // 🔥 ALWAYS GENERATE IF MISSING ANALYSIS
     if (!profile || !profile.deepAnalysis || !profile.deepAnalysis.match) {
+
       const aiData = await generateCollegeProfile(college, dream);
 
       if (aiData) {
+
         if (!profile) {
+
           profile = await CollegeProfile.create({
             collegeId: college._id,
             deepAnalysis: aiData.deepAnalysis,
@@ -92,12 +100,15 @@ router.get("/:id", async (req, res) => {
             generated: true,
             lastUpdated: new Date()
           });
+
         } else {
+
           profile.deepAnalysis = aiData.deepAnalysis;
           profile.infrastructure = aiData.infrastructure;
           profile.voices = aiData.voices;
           profile.generated = true;
           profile.lastUpdated = new Date();
+
           await profile.save();
         }
       }
@@ -108,11 +119,37 @@ router.get("/:id", async (req, res) => {
       ...(profile ? profile.toObject() : {})
     };
 
+   // ================= DEMO AI ANALYSIS (TEMPORARY) =================
+
+const collegeName = college.name || "This college";
+const branch = college.branch || "engineering";
+
+const placement =
+  (college.facts && college.facts.placementRate) ||
+  "competitive placement outcomes";
+
+const fees =
+  (college.facts && college.facts.fees) ||
+  "affordable tuition";
+combined.deepAnalysis = {
+
+  match: `${collegeName}'s ${branch} program demonstrates a strong alignment with modern technology careers such as software engineering, artificial intelligence development, and advanced computing roles. The curriculum typically emphasises core technical foundations including algorithms, data structures, operating systems, and distributed systems, which serve as essential building blocks for complex engineering work. Students benefit from project-based learning, collaborative academic environments, and exposure to real-world technical challenges that strengthen both analytical reasoning and practical implementation skills. For individuals aiming to enter innovation-driven technology sectors, the program provides a balanced combination of theoretical depth and applied engineering knowledge that supports long-term professional development.`,
+
+  career: `Graduates from ${collegeName} frequently transition into professional roles such as Software Engineer, Backend Developer, Data Engineer, DevOps Engineer, and AI Developer within both established technology firms and emerging startups. The technical environment encourages participation in hackathons, coding competitions, and collaborative software projects that improve industry readiness before graduation. Many alumni build careers in product-based companies, fintech platforms, and cloud infrastructure organisations where advanced programming and systems thinking are highly valued. Over time, graduates often progress into senior engineering roles, technical architects, or specialised domain experts as they gain deeper experience within complex software ecosystems.`,
+
+  roi: `From a financial perspective, ${collegeName} presents a favourable return on investment when compared with many institutions offering similar ${branch} programs. With ${fees} and ${placement}, students are able to enter the workforce with strong technical preparation and competitive employment opportunities. The combination of relatively manageable educational costs and stable career prospects allows many graduates to recover their academic investment within the early stages of their professional journey. When evaluated over the long term, the balance between institutional reputation, technical training quality, and employment outcomes makes the program a financially efficient pathway into the modern technology industry.`
+
+};
+
     res.json(combined);
 
   } catch (err) {
+
     console.error("Details Error:", err);
-    res.status(500).json({ error: "Failed to load details" });
+
+    res.status(500).json({
+      error: "Failed to load details"
+    });
   }
 });
 
